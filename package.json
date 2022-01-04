@@ -14,5 +14,8 @@
   "bugs": {
     "url": "https://github.com/imslava/imslava-front/issues"
   },
-  "homepage": "https://github.com/imslava/imslava-front#readme"
+  "homepage": "https://github.com/imslava/imslava-front#readme",
+  "devDependencies": {
+    "gulp": "^4.0.2"
+  }
 }
