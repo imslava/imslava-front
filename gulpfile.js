@@ -10,7 +10,8 @@ const sass = require('gulp-sass')(require('sass')),
 			plumber = require('gulp-plumber'),
 			autoprefixer = require('gulp-autoprefixer'),
 			mincss = require('gulp-clean-css'),
-			sourcemaps = require('gulp-sourcemaps')
+			sourcemaps = require('gulp-sourcemaps'),
+			notify = require('gulp-notify')
 
 const style = () => {
 	src(`${srcPath}/sass/**/*.sass`)
@@ -28,7 +29,12 @@ const style = () => {
     }))
 	return src(`${srcPath}/sass/**/*.sass`)
 		.pipe(sourcemaps.init())
-		.pipe(plumber())
+		.pipe(plumber({
+			errorHandler: notify.onError(error => ({
+				title: 'SASS',
+				message: error.message
+			}))
+		}))
 		.pipe(sass())
 		.pipe(autoprefixer({
       cascade: false
