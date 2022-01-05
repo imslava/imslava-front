@@ -11,6 +11,7 @@ npm i
 ```
 
 ### Структура проекта
+
 ```
 imslava-front                        		| Корень проекта
 ├── src                                 | Исходные файлы
@@ -38,4 +39,23 @@ imslava-front                        		| Корень проекта
 ├── .gitignore                          | Исключенные файлы из git
 ├── gulpfile.js                         | Конфигурация Gulp
 └── package.json                        | Список зависимостей 
+```
+
+### Заметки
+
+#### Подключение файлов
+
+Подключение js файла
+```
+//=require helpers/functions.js
+```
+
+Подключение sass файла
+```
+@import 'helpers/media'
+```
+
+Подключение html файла
+```
+@include 'include/_header.html'
 ```
