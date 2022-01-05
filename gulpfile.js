@@ -1,7 +1,7 @@
 const srcPath = './src',
 			destPath = './app'
 
-const {src, dest, parallel, series, watch} = require('gulp')
+const {src, dest, series, watch} = require('gulp')
 
 const browserSync = require('browser-sync').create(),
 			sass = require('gulp-sass')(require('sass')),
