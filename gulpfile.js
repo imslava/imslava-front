@@ -14,7 +14,8 @@ const sass = require('gulp-sass')(require('sass')),
 			notify = require('gulp-notify'),
 			uglify = require('gulp-uglify-es').default,
 			include = require('gulp-include'),
-			del = require('del')
+			del = require('del'),
+			rename = require('gulp-rename')
 
 const style = () => {
 	return src(`${srcPath}/sass/**/*.sass`)
@@ -35,41 +36,12 @@ const style = () => {
 		.pipe(browserSync.reload({
       stream: true
     }))
-	// return src(`${srcPath}/sass/**/*.sass`)
-	// 	.pipe(sourcemaps.init())
-	// 	.pipe(sass())
-	// 	.pipe(autoprefixer({
-  //     cascade: false
-  //   }))
-	// 	.pipe(mincss({
-  //     compatibility: "ie8", level: {
-  //       1: {
-  //         specialComments: 0,
-  //         removeEmpty: true,
-  //         removeWhitespace: true
-  //       },
-  //       2: {
-  //         mergeMedia: true,
-  //         removeEmpty: true,
-  //         removeDuplicateFontRules: true,
-  //         removeDuplicateMediaBlocks: true,
-  //         removeDuplicateRules: true,
-  //         removeUnusedAtRules: false
-  //       }
-  //     }
-  //   }))
-	// 	.pipe(concat('main.min.css'))
-	// 	.pipe(sourcemaps.write('./maps'))
-	// 	.pipe(dest(`${destPath}/css/`))
-	// 	.pipe(browserSync.reload({
-  //     stream: true
-  //   }))
 }
 
-const scripts = () => {
+const script = () => {
 	src(`${srcPath}/js/main.js`)
-		.pipe(include())
 		.pipe(sourcemaps.init())
+		.pipe(include())
 		.pipe(plumber({
 			errorHandler: notify.onError(error => ({
 				title: 'JavaScript',
@@ -83,8 +55,8 @@ const scripts = () => {
     }))
 
 	return src(`${srcPath}/js/vendor.js`)
-		.pipe(include())
 		.pipe(sourcemaps.init())
+		.pipe(include())
 		.pipe(plumber({
 			errorHandler: notify.onError(error => ({
 				title: 'JavaScript',
@@ -96,16 +68,45 @@ const scripts = () => {
 		.pipe(browserSync.reload({
       stream: true
     }))
-	// return src(`${srcPath}/js/main.js`)
-	// 	.pipe(include())
-	// 	.pipe(sourcemaps.init())
-	// 	.pipe(concat('main.min.js'))
-	// 	.pipe(uglify())
-	// 	.pipe(sourcemaps.write('./maps'))
-	// 	.pipe(dest(`${destPath}/js/`))
-	// 	.pipe(browserSync.reload({
-  //     stream: true
-  //   }))
+}
+
+const minify = () => {
+	src(`${srcPath}/js/main.js`)
+		.pipe(include())
+		.pipe(rename({ suffix: '.min' }))
+		.pipe(uglify())
+		.pipe(dest(`${destPath}/js/`))
+
+	src(`${srcPath}/js/vendor.js`)
+		.pipe(include())
+		.pipe(uglify())
+		.pipe(rename({ suffix: '.min' }))
+		.pipe(dest(`${destPath}/js/`))
+
+	return src(`${srcPath}/sass/**/*.sass`)
+		.pipe(sass())
+		.pipe(autoprefixer({
+      cascade: false
+    }))
+		.pipe(mincss({
+      compatibility: "ie8", level: {
+        1: {
+          specialComments: 0,
+          removeEmpty: true,
+          removeWhitespace: true
+        },
+        2: {
+          mergeMedia: true,
+          removeEmpty: true,
+          removeDuplicateFontRules: true,
+          removeDuplicateMediaBlocks: true,
+          removeDuplicateRules: true,
+          removeUnusedAtRules: false
+        }
+      }
+    }))
+		.pipe(concat('main.min.css'))
+		.pipe(dest(`${destPath}/css/`))
 }
 
 const watchFile = () => {
@@ -115,12 +116,14 @@ const watchFile = () => {
     },
   })
 
-	watch([`${srcPath}/sass/**/*.sass`], series(style))
-	watch([`${srcPath}/js/**/*.js`], series(scripts))
+	watch([`${srcPath}/sass/**/*.sass`], style)
+	watch([`${srcPath}/js/**/*.js`], script)
 }
 
 const clean = () => {
   return del(destPath)
 }
 
-exports.default = series(clean, style, scripts, watchFile)
+exports.default = series(clean, style, script, watchFile)
+exports.minify = minify
+exports.clean = clean
