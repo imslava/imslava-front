@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "browser-sync": "^2.27.7",
+    "gulp-include": "^2.4.1",
     "gulp-sourcemaps": "^3.0.0"
   }
 }
