@@ -13,7 +13,7 @@ npm i
 ## Структура проекта
 
 ```
-imslava-front                        		| Корень проекта
+imslava-front                           | Корень проекта
 ├── src                                 | Исходные файлы
 │   ├── fonts                           | Шрифты
 │   ├── js                            	| Файлы скриптов
@@ -57,5 +57,5 @@ imslava-front                        		| Корень проекта
 
 Подключение html файла
 ```
-@include 'include/_header.html'
+{% include 'include/_header.html' %}
 ```
