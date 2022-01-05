@@ -3,9 +3,8 @@ const srcPath = './src',
 
 const {src, dest, parallel, series, watch} = require('gulp')
 
-const browserSync = require('browser-sync').create()
-
-const sass = require('gulp-sass')(require('sass')),
+const browserSync = require('browser-sync').create(),
+			sass = require('gulp-sass')(require('sass')),
 			concat = require('gulp-concat'),
 			plumber = require('gulp-plumber'),
 			autoprefixer = require('gulp-autoprefixer'),
@@ -15,7 +14,12 @@ const sass = require('gulp-sass')(require('sass')),
 			uglify = require('gulp-uglify-es').default,
 			include = require('gulp-include'),
 			del = require('del'),
-			rename = require('gulp-rename')
+			rename = require('gulp-rename'),
+			nunjucksRender = require('gulp-nunjucks-render'),
+			replace = require('gulp-replace'),
+			cryptoRandomString = require('crypto-random-string'),
+			generateHash = cryptoRandomString({ length: 8 }),
+			zip = require('gulp-zip')
 
 const style = () => {
 	return src(`${srcPath}/sass/**/*.sass`)
@@ -70,6 +74,17 @@ const script = () => {
     }))
 }
 
+const html = () => {
+  return src(`${srcPath}/pages/*.html`)
+    .pipe(nunjucksRender({
+      path: [`${srcPath}/pages/`]
+    }))
+    .pipe(dest(`${destPath}/`))
+		.pipe(browserSync.reload({
+      stream: true
+    }))
+}
+
 const minify = () => {
 	src(`${srcPath}/js/main.js`)
 		.pipe(include())
@@ -118,12 +133,43 @@ const watchFile = () => {
 
 	watch([`${srcPath}/sass/**/*.sass`], style)
 	watch([`${srcPath}/js/**/*.js`], script)
+	watch([`${srcPath}/pages/**/*.html`], html)
 }
 
 const clean = () => {
   return del(destPath)
 }
 
-exports.default = series(clean, style, script, watchFile)
-exports.minify = minify
+const hash = () => {
+	return src(`${destPath}/*.html`)
+		.pipe(replace('?v=hash', '?v=' + generateHash))
+		.pipe(dest(destPath))
+}
+
+const suffix = () => {
+	return src(`${destPath}/*.html`)
+		.pipe(replace('vendor.js', 'vendor.min.js'))
+		.pipe(replace('main.js', 'main.min.js'))
+		.pipe(replace('main.css', 'main.min.css'))
+		.pipe(dest(destPath))
+}
+
+const archive = () => {
+	let now = new Date();
+	let year = now.getFullYear().toString().padStart(2, '0');
+	let month = (now.getMonth() + 1).toString().padStart(2, '0');
+	let day = now.getDate().toString().padStart(2, '0');
+	let hours = now.getHours().toString().padStart(2, '0');
+	let minutes = now.getMinutes().toString().padStart(2, '0');
+
+	return src(`${destPath}/**/*.*`)
+		.pipe(zip(`build_${year}-${month}-${day}_${hours}-${minutes}.zip`))
+		.pipe(dest('zip'))
+}
+
+exports.default = series(clean, html, style, script, watchFile)
+exports.build = series(clean, html, style, script, hash)
+exports.minify = series(minify, suffix)
 exports.clean = clean
+
+exports.deploy = series(exports.minify, archive)

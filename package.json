@@ -16,14 +16,18 @@
   },
   "homepage": "https://github.com/imslava/imslava-front#readme",
   "devDependencies": {
+    "crypto-random-string": "^3.3.0",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^8.0.0",
     "gulp-clean-css": "^4.3.0",
     "gulp-concat": "^2.6.1",
     "gulp-notify": "^4.0.0",
+    "gulp-nunjucks-render": "^2.2.3",
     "gulp-plumber": "^1.2.1",
+    "gulp-replace": "^1.1.3",
     "gulp-sass": "^5.1.0",
     "gulp-uglify-es": "^3.0.0",
+    "gulp-zip": "^5.1.0",
     "sass": "^1.45.2"
   },
   "dependencies": {
