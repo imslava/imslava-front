@@ -66,19 +66,23 @@ const style = () => {
 
 const scripts = () => {
 	src(`${srcPath}/js/main.js`)
+		.pipe(sourcemaps.init())
 		.pipe(plumber({
 			errorHandler: notify.onError(error => ({
 				title: 'JavaScript',
 				message: error.message
 			}))
 		}))
+		.pipe(sourcemaps.write('./maps'))
 		.pipe(dest(`${destPath}/js/`))
 		.pipe(browserSync.reload({
       stream: true
     }))
 	return src(`${srcPath}/js/main.js`)
+		.pipe(sourcemaps.init())
 		.pipe(concat('main.min.js'))
 		.pipe(uglify())
+		.pipe(sourcemaps.write('./maps'))
 		.pipe(dest(`${destPath}/js/`))
 		.pipe(browserSync.reload({
       stream: true
