@@ -37,9 +37,7 @@ const style = () => {
 		.pipe(concat('main.css'))
 		.pipe(sourcemaps.write('./maps'))
 		.pipe(dest(`${destPath}/css/`))
-		.pipe(browserSync.reload({
-      stream: true
-    }))
+		.pipe(browserSync.stream())
 }
 
 const script = () => {
@@ -54,9 +52,7 @@ const script = () => {
 		}))
 		.pipe(sourcemaps.write('./maps'))
 		.pipe(dest(`${destPath}/js/`))
-		.pipe(browserSync.reload({
-      stream: true
-    }))
+		.pipe(browserSync.stream())
 
 	return src(`${srcPath}/js/vendor.js`)
 		.pipe(sourcemaps.init())
@@ -69,9 +65,7 @@ const script = () => {
 		}))
 		.pipe(sourcemaps.write('./maps'))
 		.pipe(dest(`${destPath}/js/`))
-		.pipe(browserSync.reload({
-      stream: true
-    }))
+		.pipe(browserSync.stream())
 }
 
 const html = () => {
@@ -79,37 +73,14 @@ const html = () => {
     .pipe(nunjucksRender({
       path: [`${srcPath}/pages/`]
     }))
-		.pipe(plumber({
-			errorHandler: notify.onError(error => ({
-				title: 'HTML',
-				message: error.message
-			}))
-		}))
-    .pipe(dest(`${destPath}/`))
-		.pipe(browserSync.reload({
-      stream: true
-    }))
+    .pipe(dest(destPath))
+		.pipe(browserSync.stream())
 }
 
 const img = () => {
 	return src(`${srcPath}/img/**/*`)
 		.pipe(dest(`${destPath}/img`))
-		.pipe(browserSync.reload({
-      stream: true
-    }))
-}
-
-const watchFile = () => {
-  browserSync.init({
-    server: {
-      baseDir: destPath
-    },
-  })
-
-	watch([`${srcPath}/sass/**/*.sass`], style)
-	watch([`${srcPath}/js/**/*.js`], script)
-	watch([`${srcPath}/pages/**/*.html`], html)
-	watch([`${srcPath}/img/**/*`], img)
+		.pipe(browserSync.stream())
 }
 
 const minify = () => {
@@ -180,8 +151,20 @@ const archive = () => {
 		.pipe(dest('zip'))
 }
 
-exports.clean = clean
-exports.main = series(clean, html, style, script, img)
+const watchFile = () => {
+  browserSync.init({
+    server: {
+      baseDir: destPath
+    },
+  })
 
-exports.default = series(exports.main, watchFile)
-exports.build = series(exports.main, hash, minify, archive)
+	watch([`${srcPath}/sass/**/*.sass`], style)
+	watch([`${srcPath}/js/**/*.js`], script)
+	watch([`${srcPath}/pages/**/*.html`], html)
+	watch([`${srcPath}/img/**/*`], img)
+}
+
+exports.clean = clean
+
+exports.default = series(clean, html, style, script, img, watchFile)
+exports.build = series(clean, html, style, script, img, hash, minify, archive)
