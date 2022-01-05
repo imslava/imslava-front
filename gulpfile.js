@@ -168,11 +168,7 @@ const archive = () => {
 }
 
 exports.clean = clean
-
 exports.main = series(exports.clean, html, style, script)
+
 exports.default = series(exports.main, watchFile)
-
-exports.build = series(exports.main, hash)
-exports.minify = series(minify, suffix)
-
-exports.deploy = series(exports.minify, archive)
+exports.build = series(exports.main, hash, minify, suffix, archive)
