@@ -125,7 +125,7 @@ const minify = () => {
 		.pipe(rename({ suffix: '.min' }))
 		.pipe(dest(`${destPath}/js/`))
 
-	return src(`${srcPath}/sass/**/*.sass`)
+	src(`${srcPath}/sass/**/*.sass`)
 		.pipe(sass())
 		.pipe(autoprefixer({
       cascade: false
@@ -149,6 +149,12 @@ const minify = () => {
     }))
 		.pipe(concat('main.min.css'))
 		.pipe(dest(`${destPath}/css/`))
+
+	return src(`${destPath}/*.html`)
+		.pipe(replace('vendor.js', 'vendor.min.js'))
+		.pipe(replace('main.js', 'main.min.js'))
+		.pipe(replace('main.css', 'main.min.css'))
+		.pipe(dest(destPath))
 }
 
 const clean = () => {
@@ -158,14 +164,6 @@ const clean = () => {
 const hash = () => {
 	return src(`${destPath}/*.html`)
 		.pipe(replace('?v=hash', '?v=' + generateHash))
-		.pipe(dest(destPath))
-}
-
-const suffix = () => {
-	return src(`${destPath}/*.html`)
-		.pipe(replace('vendor.js', 'vendor.min.js'))
-		.pipe(replace('main.js', 'main.min.js'))
-		.pipe(replace('main.css', 'main.min.css'))
 		.pipe(dest(destPath))
 }
 
@@ -186,4 +184,4 @@ exports.clean = clean
 exports.main = series(clean, html, style, script, img)
 
 exports.default = series(exports.main, watchFile)
-exports.build = series(exports.main, hash, minify, suffix, archive)
+exports.build = series(exports.main, hash, minify, archive)
