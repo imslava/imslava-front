@@ -167,9 +167,12 @@ const archive = () => {
 		.pipe(dest('zip'))
 }
 
-exports.default = series(clean, html, style, script, watchFile)
-exports.build = series(clean, html, style, script, hash)
-exports.minify = series(minify, suffix)
 exports.clean = clean
+
+exports.main = series(exports.clean, html, style, script)
+exports.default = series(exports.main, watchFile)
+
+exports.build = series(exports.main, hash)
+exports.minify = series(minify, suffix)
 
 exports.deploy = series(exports.minify, archive)
