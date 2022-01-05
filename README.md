@@ -10,6 +10,20 @@ git clone git@github.com:imslava/imslava-front.git
 npm i
 ```
 
+## Команды
+
+Для запуска проекта
+```
+gulp
+```
+
+Для сборки проекта
+```
+gulp build
+```
+
+> `gulp build` соберет проект дополнительно в zip архив
+
 ## Структура проекта
 
 ```
