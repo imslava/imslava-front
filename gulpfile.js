@@ -11,7 +11,8 @@ const sass = require('gulp-sass')(require('sass')),
 			autoprefixer = require('gulp-autoprefixer'),
 			mincss = require('gulp-clean-css'),
 			sourcemaps = require('gulp-sourcemaps'),
-			notify = require('gulp-notify')
+			notify = require('gulp-notify'),
+			uglify = require('gulp-uglify-es').default
 
 const style = () => {
 	src(`${srcPath}/sass/**/*.sass`)
@@ -63,6 +64,27 @@ const style = () => {
     }))
 }
 
+const scripts = () => {
+	src(`${srcPath}/js/main.js`)
+		.pipe(plumber({
+			errorHandler: notify.onError(error => ({
+				title: 'JavaScript',
+				message: error.message
+			}))
+		}))
+		.pipe(dest(`${destPath}/js/`))
+		.pipe(browserSync.reload({
+      stream: true
+    }))
+	return src(`${srcPath}/js/main.js`)
+		.pipe(concat('main.min.js'))
+		.pipe(uglify())
+		.pipe(dest(`${destPath}/js/`))
+		.pipe(browserSync.reload({
+      stream: true
+    }))
+}
+
 const watchFile = () => {
   browserSync.init({
     server: {
@@ -71,6 +93,7 @@ const watchFile = () => {
   })
 
 	watch([`${srcPath}/sass/**/*.sass`], series(style))
+	watch([`${srcPath}/js/**/*.js`], series(scripts))
 }
 
-exports.default = series(style, watchFile)
+exports.default = series(style, scripts, watchFile)
