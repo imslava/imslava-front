@@ -13,7 +13,8 @@ const sass = require('gulp-sass')(require('sass')),
 			sourcemaps = require('gulp-sourcemaps'),
 			notify = require('gulp-notify'),
 			uglify = require('gulp-uglify-es').default,
-			include = require('gulp-include')
+			include = require('gulp-include'),
+			del = require('del')
 
 const style = () => {
 	return src(`${srcPath}/sass/**/*.sass`)
@@ -118,4 +119,8 @@ const watchFile = () => {
 	watch([`${srcPath}/js/**/*.js`], series(scripts))
 }
 
-exports.default = series(style, scripts, watchFile)
+const clean = () => {
+  return del(destPath)
+}
+
+exports.default = series(clean, style, scripts, watchFile)
