@@ -79,10 +79,37 @@ const html = () => {
     .pipe(nunjucksRender({
       path: [`${srcPath}/pages/`]
     }))
+		.pipe(plumber({
+			errorHandler: notify.onError(error => ({
+				title: 'HTML',
+				message: error.message
+			}))
+		}))
     .pipe(dest(`${destPath}/`))
 		.pipe(browserSync.reload({
       stream: true
     }))
+}
+
+const img = () => {
+	return src(`${srcPath}/img/**/*`)
+		.pipe(dest(`${destPath}/img`))
+		.pipe(browserSync.reload({
+      stream: true
+    }))
+}
+
+const watchFile = () => {
+  browserSync.init({
+    server: {
+      baseDir: destPath
+    },
+  })
+
+	watch([`${srcPath}/sass/**/*.sass`], style)
+	watch([`${srcPath}/js/**/*.js`], script)
+	watch([`${srcPath}/pages/**/*.html`], html)
+	watch([`${srcPath}/img/**/*`], img)
 }
 
 const minify = () => {
@@ -124,18 +151,6 @@ const minify = () => {
 		.pipe(dest(`${destPath}/css/`))
 }
 
-const watchFile = () => {
-  browserSync.init({
-    server: {
-      baseDir: destPath
-    },
-  })
-
-	watch([`${srcPath}/sass/**/*.sass`], style)
-	watch([`${srcPath}/js/**/*.js`], script)
-	watch([`${srcPath}/pages/**/*.html`], html)
-}
-
 const clean = () => {
   return del(destPath)
 }
@@ -162,13 +177,13 @@ const archive = () => {
 	let hours = now.getHours().toString().padStart(2, '0');
 	let minutes = now.getMinutes().toString().padStart(2, '0');
 
-	return src(`${destPath}/**/*.*`)
+	return src(`${destPath}/**/*`)
 		.pipe(zip(`build_${year}-${month}-${day}_${hours}-${minutes}.zip`))
 		.pipe(dest('zip'))
 }
 
 exports.clean = clean
-exports.main = series(exports.clean, html, style, script)
+exports.main = series(clean, html, style, script, img)
 
 exports.default = series(exports.main, watchFile)
 exports.build = series(exports.main, hash, minify, suffix, archive)
