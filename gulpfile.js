@@ -16,7 +16,12 @@ const sass = require('gulp-sass')(require('sass')),
 const style = () => {
 	src(`${srcPath}/sass/**/*.sass`)
 		.pipe(sourcemaps.init())
-		.pipe(plumber())
+		.pipe(plumber({
+			errorHandler: notify.onError(error => ({
+				title: 'SASS',
+				message: error.message
+			}))
+		}))
 		.pipe(sass())
 		.pipe(autoprefixer({
       cascade: false
@@ -29,12 +34,6 @@ const style = () => {
     }))
 	return src(`${srcPath}/sass/**/*.sass`)
 		.pipe(sourcemaps.init())
-		.pipe(plumber({
-			errorHandler: notify.onError(error => ({
-				title: 'SASS',
-				message: error.message
-			}))
-		}))
 		.pipe(sass())
 		.pipe(autoprefixer({
       cascade: false
